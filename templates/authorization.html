@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизация</title>
+</head>
+<body>
+    <h1 style="font-family: Arial; text-align: center;">Авторизация</h1>
+
+    <form id="authForm" style="width: 300px; margin: auto; border: 1px solid #ccc; padding: 20px; border-radius: 10px;">
+        <label style="font-weight: bold;" for="username">Юзернэйм:</label>
+        <input type="text" id="username" name="username" required style="width: 90%; margin: 5px 0; padding: 10px;"><br>
+
+        <label style="font-weight: bold;" for="password">Пароль:</label>
+        <input type="password" id="password" name="password" required style="width: 90%; margin: 5px 0; padding: 10px;"><br>
+
+        <input type="submit" value="Авторизоваться" style="background-color: #4CAF50; color: white; padding: 10px; width: 100%;">
+    </form>
+
+    <div id="message" style="text-align: center; margin-top: 20px;"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const formElement = document.getElementById("authForm");
+
+            formElement.addEventListener("submit", async function handleSubmit(event) {
+                event.preventDefault();
+                const formData = new FormData(formElement);
+                const username = formData.get("username");
+                const password = formData.get("password");
+
+                const response = await fetch("http://127.0.0.1:8000/process-authorization/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const messageDiv = document.getElementById("message");
+
+                if (response.ok) {
+                    messageDiv.textContent = "Вы авторизованы успешно!";
+                    messageDiv.style.color = "green";
+                } else {
+                    messageDiv.textContent = "Юзернэйм или пароль неверные.";
+                    messageDiv.style.color = "red";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
