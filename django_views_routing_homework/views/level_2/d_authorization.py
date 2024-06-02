@@ -1,12 +1,13 @@
 import json
 
-from django.http import JsonResponse, HttpResponseNotAllowed
+from django.core import serializers
+from django.http import JsonResponse, HttpResponseNotAllowed, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 """
 В этой задаче у нас сразу две вьюхи.
-authorization_view - просто отрисовывает страниц авторизации по ссылке http://127.0.0.1:8000/authorization/ . В ней мы ничего не меняем
+authorization_view - просто отрисовывает страницу авторизации по ссылке http://127.0.0.1:8000/authorization/ . В ней мы ничего не меняем
 process_authorization_view - обрабатывает заполненные данные на странице авторизации
 и возвращает статус об успехе или неуспехе. С ней мы и будем работать
 
@@ -38,7 +39,12 @@ USERNAME_TO_PASSWORD_MAPPER = {
 def process_authorization_view(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        # код писать тут
+        username = data.get('username')
+        password = data.get('password')
+        if username in USERNAME_TO_PASSWORD_MAPPER and password == USERNAME_TO_PASSWORD_MAPPER[username]:
+            return JsonResponse(data={}, status=200)
+        else:
+            return JsonResponse(data={}, status=403)
     else:
         return HttpResponseNotAllowed(permitted_methods=['POST'])
 
@@ -46,4 +52,3 @@ def process_authorization_view(request):
 # не обращайте внимания на эту вьюху, она нужна лишь для отрисовки страницы авторизации
 def authorization_view(request):
     return render(request, 'authorization.html')
-
