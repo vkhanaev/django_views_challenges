@@ -17,9 +17,42 @@
 Для тестирования рекомендую использовать Postman.
 Когда будете писать код, не забывайте о читаемости, поддерживаемости и модульности.
 """
+import json
+import re
+from typing import Dict
 
-from django.http import HttpResponse, HttpRequest
+from django.core.exceptions import BadRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseNotAllowed, JsonResponse
+
+
+def data_is_valid(data: Dict[str, str | int | None]) -> bool:
+    if 'full_name' not in data or not (5 <= len(data['full_name']) <= 256):
+        return False
+
+    email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    if 'email' not in data or not re.match(email_regex, data['email']):
+        return False
+
+    if 'registered_from' not in data or data['registered_from'] not in {'website', 'mobile_app'}:
+        return False
+
+    if 'age' in data and not isinstance(data['age'], int):
+        return False
+
+    allowed_fields = {'full_name', 'email', 'registered_from', 'age'}
+    if any(field not in allowed_fields for field in data):
+        return False
+
+    return True
 
 
 def validate_user_data_view(request: HttpRequest) -> HttpResponse:
-    pass  # код писать тут
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            if data_is_valid(data):
+                return JsonResponse({"is_valid": True}, status=200)
+            return JsonResponse({"is_valid": False}, status=200)
+        except Exception as e:
+            raise BadRequest('Invalid request.')
+    return HttpResponseNotAllowed(permitted_methods=['POST'])

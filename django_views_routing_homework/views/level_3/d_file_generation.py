@@ -14,8 +14,30 @@
 скачивать сгенерированный файл.
 """
 
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseNotAllowed, HttpResponseForbidden
+from lorem import paragraph
+MAX_TEXT_LENGTH = 5000
+
+
+def generate_random_text(text_length):
+    generated_text = paragraph()
+    while len(generated_text) < text_length:
+        generated_text += '\n' + paragraph()
+    return generated_text[:text_length]
 
 
 def generate_file_with_text_view(request: HttpRequest) -> HttpResponse:
-    pass  # код писать тут
+    if request.method == 'GET':
+        text_length = int(request.GET.get('length', None))
+        if text_length and text_length < MAX_TEXT_LENGTH:
+            random_text = generate_random_text(text_length)
+            response = HttpResponse(
+                content_type="text/plain",
+                headers={"Content-Disposition": 'attachment; filename="attachment.txt"'},
+            )
+            response.writelines(random_text)
+            return response
+        else:
+            return HttpResponseForbidden()
+    else:
+        return HttpResponseNotAllowed(permitted_methods=['GET'])
