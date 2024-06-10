@@ -1,3 +1,5 @@
+import datetime
+
 from django.http import HttpResponse, HttpResponseNotFound
 
 
@@ -14,9 +16,16 @@ from django.http import HttpResponse, HttpResponseNotFound
 
 
 def get_month_title_by_number(month_number: int):
-    pass  # код писать тут
+    if 0 < month_number < 13:
+        months = ['Январь', 'Февраль', 'Март', 'Апрнль', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябоь', 'Декабрь']
+        return months[month_number + 1]
+    raise ValueError
 
 
 def get_month_title_view(request, month_number: int):
-    # код писать тут
-    return HttpResponseNotFound('Месяца с таким номером не существует')
+    try:
+        month_title = get_month_title_by_number(month_number)
+        return HttpResponse('Месяц с номером {month_number}: {month_title}'.format(
+            month_number=month_number, month_title=month_title))
+    except ValueError:
+        return HttpResponseNotFound('Месяца с таким номером не существует')
