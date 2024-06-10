@@ -25,6 +25,6 @@ urlpatterns = [
     path('user/validate/', validate_user_data_view),
     path('user/github/<slug:github_username>/full-name/', fetch_name_from_github_view),
     path('text/generate/', generate_file_with_text_view),
-    path('greet/<str:name>/<str:language>/', greet_user_in_different_languages_view),
+    path('greet/<str:name>/<slug:language>/', greet_user_in_different_languages_view),
     # добавлять пути тут
 ]

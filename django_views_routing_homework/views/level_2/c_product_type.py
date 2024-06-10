@@ -1,5 +1,4 @@
-from django.http import JsonResponse
-
+from django.http import JsonResponse, HttpResponseNotAllowed
 
 """
 Вьюха get_products_view должна возвращать список продуктов, если обратиться по адресу http://127.0.0.1:8000/products/
@@ -38,8 +37,13 @@ PRODUCTS = [
 
 def get_products_view(request):
     products = PRODUCTS
-    if request.method == 'GET':
-        product_type = request.GET.get('product_type', None)
-        if product_type:
-            products = [item for item in PRODUCTS if item['type'] == product_type]
-    return JsonResponse(data=products, safe=False)
+    if request.method != 'GET':
+        return HttpResponseNotAllowed(['GET'])
+
+    product_type = request.GET.get('product_type', None)
+    if not product_type:
+        return JsonResponse(data=products, safe=False)
+
+    filtered_products = [item for item in PRODUCTS if item['type'] == product_type]
+    return JsonResponse(data=filtered_products, safe=False)
+
